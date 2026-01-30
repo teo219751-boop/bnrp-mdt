@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BNRP Police MDT</title>
+
+<style>
+body{
+  font-family:Arial, sans-serif;
+  background:#020617;
+  color:#e5e7eb;
+  margin:0;
+}
+.box{
+  max-width:780px;
+  margin:40px auto;
+  background:#020617;
+  padding:20px;
+  border-radius:10px;
+  border:1px solid #1e40af;
+}
+h1,h2{
+  text-align:center;
+  color:#93c5fd;
+}
+input,textarea,select,button{
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border-radius:6px;
+  border:none;
+}
+button{
+  background:#1e40af;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+button:hover{ background:#1d4ed8; }
+.hidden{ display:none; }
+.report{
+  background:#020617;
+  border:1px solid #1e3a8a;
+  padding:10px;
+  border-radius:6px;
+  margin-top:10px;
+}
+.label{
+  font-weight:bold;
+  color:#bfdbfe;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box" id="loginBox">
+  <h1>BNRP Police MDT</h1>
+  <input id="officer" placeholder="Officer Name">
+  <input id="badge" placeholder="Badge / Callsign">
+  <button onclick="login()">Login</button>
+</div>
+
+<div class="box hidden" id="reportBox">
+  <h2>Police Report</h2>
+
+  <input id="suspect" placeholder="Suspect Name">
+  <input id="location" placeholder="Location">
+
+  <select id="type">
+    <option>Incident Report</option>
+    <option>Arrest Report</option>
+    <option>Citation</option>
+    <option>Use of Force</option>
+  </select>
+
+  <textarea id="charges" placeholder="Charges (BNRP Penal Code)"></textarea>
+  <textarea id="actions" placeholder="Actions Taken"></textarea>
+
+  <select id="status">
+    <option>Arrested</option>
+    <option>Released</option>
+    <option>Cited</option>
+    <option>Investigation Ongoing</option>
+  </select>
+
+  <button onclick="saveReport()">Save Report</button>
+</div>
+
+<div class="box hidden" id="listBox">
+  <h2>BNRP Report Archive</h2>
+  <div id="reports"></div>
+</div>
+
+<script>
+function login(){
+  document.getElementById("loginBox").classList.add("hidden");
+  document.getElementById("reportBox").classList.remove("hidden");
+  document.getElementById("listBox").classList.remove("hidden");
+  loadReports();
+}
+
+function saveReport(){
+  const report={
+    date:new Date().toLocaleString(),
+    officer:document.getElementById("officer").value,
+    badge:document.getElementById("badge").value,
+    suspect:document.getElementById("suspect").value,
+    location:document.getElementById("location").value,
+    type:document.getElementById("type").value,
+    charges:document.getElementById("charges").value,
+    actions:document.getElementById("actions").value,
+    status:document.getElementById("status").value
+  };
+
+  let reports=JSON.parse(localStorage.getItem("bnrpReports"))||[];
+  reports.push(report);
+  localStorage.setItem("bnrpReports",JSON.stringify(reports));
+  alert("BNRP Report Saved (RP)");
+  loadReports();
+}
+
+function loadReports(){
+  const reports=JSON.parse(localStorage.getItem("bnrpReports"))||[];
+  const container=document.getElementById("reports");
+  container.innerHTML="";
+
+  reports.forEach((r,i)=>{
+    const div=document.createElement("div");
+    div.className="report";
+    div.innerHTML=`
+      <div class="label">Report #${i+1}</div>
+      <div><span class="label">Date:</span> ${r.date}</div>
+      <div><span class="label">Officer:</span> ${r.officer} (${r.badge})</div>
+      <div><span class="label">Suspect:</span> ${r.suspect}</div>
+      <div><span class="label">Location:</span> ${r.location}</div>
+      <div><span class="label">Type:</span> ${r.type}</div>
+      <div><span class="label">Charges:</span> ${r.charges}</div>
+      <div><span class="label">Actions:</span> ${r.actions}</div>
+      <div><span class="label">Status:</span> ${r.status}</div>
+    `;
+    container.appendChild(div);
+  });
+}
+</script>
+
+</body>
+</html>
